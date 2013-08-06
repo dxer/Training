@@ -14,6 +14,9 @@ public class Crawler {
 
 	/**
 	 * 执行任务
+	 * 
+	 * @param urls
+	 *            要处理的任务
 	 */
 	public void start(String[] urls) {
 		for (String url : urls) {

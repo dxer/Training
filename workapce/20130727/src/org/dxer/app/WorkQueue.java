@@ -35,11 +35,12 @@ public class WorkQueue {
 	 */
 	public WorkQueue(int threadNum) {
 		Running = true;
+		// 产生threadNum个线程处理任务
 		workers = new Worker[threadNum];
 		for (int i = 0; i < threadNum; i++) {
 			HttpClient httpClient = HttpUtils.getHttpClient();
 			Server server = ProxyServer.getServer();
-			HttpUtils.serProxy(httpClient, server);
+			HttpUtils.serProxy(httpClient, server); // 设置代理
 			workers[i] = new Worker(httpClient);
 			workers[i].setName("Thread - " + i);
 			workers[i].start();
@@ -62,9 +63,10 @@ public class WorkQueue {
 	public void addTask(String url) {
 		synchronized (unVisited) {
 			if (url != null && !url.trim().equals("") && !visited.contains(url)
-					&& !unVisited.contains(url))
+					&& !unVisited.contains(url)) {
 				unVisited.add(url);
-			unVisited.notify();
+				unVisited.notify();
+			}
 		}
 	}
 
@@ -85,7 +87,7 @@ public class WorkQueue {
 	 */
 	private class Worker extends Thread {
 
-		private HttpClient httpClient;
+		private final HttpClient httpClient;
 		private final HttpContext httpContext;
 
 		public Worker(HttpClient httpClient) {
