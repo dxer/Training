@@ -38,12 +38,12 @@ public class ProxyServer {
 	 */
 	public static Server getServer() {
 		Server server = null;
-		int size = 1;
 		for (Server s : serverList) {
-			if (s.getState()) {
-				size++;
+			if (!s.getState()) {
+				serverList.remove(s);
 			}
 		}
+		int size = serverList.size();
 		Random random = new Random();
 		while (size > 0) {
 			int n = random.nextInt();

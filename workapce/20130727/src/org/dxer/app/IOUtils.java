@@ -35,6 +35,10 @@ public class IOUtils {
 			if (reader != null) {
 				reader.close();
 			}
+
+			if (in != null) {
+				in.close();
+			}
 		}
 		return content.toString();
 	}

@@ -97,7 +97,7 @@ public class WorkQueue {
 					String url = unVisited.poll();
 					httpGet = new HttpGet(url);
 				}
-
+				// process the task
 				process(httpClient, httpGet);
 			}
 			httpClient.getConnectionManager().shutdown();
@@ -124,7 +124,8 @@ public class WorkQueue {
 					// 获取网页内容
 					String pageContent = IOUtils.getContent(response
 							.getEntity().getContent());
-					System.out.println(pageContent);
+
+					System.out.println(url + "\t\t" + pageContent);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -133,7 +134,6 @@ public class WorkQueue {
 				httpGet.releaseConnection();
 			}
 			visited.add(url);
-			System.out.println("--------" + url);
 		}
 	}
 
