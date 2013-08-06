@@ -62,6 +62,12 @@ public class WorkQueue {
 		addTask(url);
 	}
 
+	/**
+	 * 工作线程
+	 * 
+	 * @author user
+	 * 
+	 */
 	private class Worker extends Thread {
 
 		private HttpClient httpClient;
@@ -91,11 +97,8 @@ public class WorkQueue {
 					String url = unVisited.poll();
 					httpGet = new HttpGet(url);
 				}
-				try {
-					process(httpClient, httpGet);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+
+				process(httpClient, httpGet);
 			}
 			httpClient.getConnectionManager().shutdown();
 		}
@@ -108,7 +111,7 @@ public class WorkQueue {
 			} catch (Exception e) {
 				synchronized (unVisited) {
 					// 访问失败,得将url重新加入到未访问列表中
-					unVisited.add(url);
+					reAddTask(url);
 					// 修改代理服务器
 					HttpUtils.serProxy(httpClient, ProxyServer.getServer());
 				}
