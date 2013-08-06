@@ -37,7 +37,7 @@ public class HttpUtils {
 				.getSocketFactory()));
 		PoolingClientConnectionManager cm = new PoolingClientConnectionManager(
 				schemeRegistry);
-		// Increase max total connection to 200
+		// 设置最大连接数
 		cm.setMaxTotal(200);
 
 		// 设置头信息,模拟浏览器

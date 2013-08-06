@@ -1,6 +1,15 @@
 package org.dxer.app;
 
-import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * 工作队列
@@ -10,47 +19,117 @@ import java.util.LinkedList;
  */
 public class WorkQueue {
 
+	private boolean Running;
 	private final Worker[] workers;
-	private final LinkedList<Object> queue;
+
+	// 已访问队列
+	private Set<String> visited = new HashSet<String>();
+
+	// 未访问队列
+	private Queue<String> unVisited = new PriorityQueue<String>();
 
 	public WorkQueue(int threadNum) {
-		queue = new LinkedList<Object>();
+		Running = true;
 		workers = new Worker[threadNum];
 		for (int i = 0; i < threadNum; i++) {
-			workers[i] = new Worker();
+			HttpClient httpClient = HttpUtils.getHttpClient();
+			Server server = ProxyServer.getServer();
+			HttpUtils.serProxy(httpClient, server);
+			workers[i] = new Worker(httpClient);
 			workers[i].setName("Thread - " + i);
 			workers[i].start();
 		}
 	}
 
-	public void execute(Object r) {
-		synchronized (queue) {
-			queue.addLast(r);
-			queue.notify();
+	public void stop() {
+		synchronized (unVisited) {
+			unVisited.notify();
+			unVisited.clear();
 		}
+		Running = false;
+	}
+
+	public void addTask(String url) {
+		synchronized (unVisited) {
+			if (url != null && !url.trim().equals("") && !visited.contains(url)
+					&& !unVisited.contains(url))
+				unVisited.add(url);
+			unVisited.notify();
+		}
+	}
+
+	public void reAddTask(String url) {
+		addTask(url);
 	}
 
 	private class Worker extends Thread {
 
+		private HttpClient httpClient;
+		private final HttpContext httpContext;
+
+		public Worker(HttpClient httpClient) {
+			this.httpClient = httpClient;
+			this.httpContext = new BasicHttpContext();
+		}
+
 		@Override
 		public void run() {
-			Runnable r = null;
-			while (true) {
-				synchronized (queue) {
-					while (queue.isEmpty()) {
+			HttpGet httpGet = null;
+			while (Running) {
+				synchronized (unVisited) {
+					while (unVisited.isEmpty()) {
 						try {
-							queue.wait();
+							unVisited.wait();
 						} catch (InterruptedException e) {
 						}
 					}
-					r = (Runnable) queue.removeFirst();
+
+					if (!Running) {
+						return;
+					}
+
+					String url = unVisited.poll();
+					httpGet = new HttpGet(url);
 				}
 				try {
-					r.run();
+					process(httpClient, httpGet);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
+			httpClient.getConnectionManager().shutdown();
+		}
+
+		private void process(HttpClient httpClient, HttpGet httpGet) {
+			HttpResponse response = null;
+			String url = httpGet.getURI().toString();
+			try {
+				response = httpClient.execute(httpGet, httpContext);
+			} catch (Exception e) {
+				synchronized (unVisited) {
+					// 访问失败,得将url重新加入到未访问列表中
+					unVisited.add(url);
+					// 修改代理服务器
+					HttpUtils.serProxy(httpClient, ProxyServer.getServer());
+				}
+			}
+
+			try {
+				if (response != null) {
+					// 获取网页内容
+					String pageContent = IOUtils.getContent(response
+							.getEntity().getContent());
+					System.out.println(pageContent);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				httpGet.abort();
+			} finally {
+				httpGet.releaseConnection();
+			}
+			visited.add(url);
+			System.out.println("--------" + url);
 		}
 	}
+
 }

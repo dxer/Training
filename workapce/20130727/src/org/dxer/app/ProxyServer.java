@@ -28,7 +28,7 @@ public class ProxyServer {
 		serverList.add(new Server("202.116.160.89", 80));
 		serverList.add(new Server("120.85.140.123", 9000));
 		serverList.add(new Server("210.14.143.53", 7620));
-		serverList.add(new Server("125.39.66.155", 80));
+		//serverList.add(new Server("125.39.66.155", 80));
 	}
 
 	/**
@@ -43,6 +43,7 @@ public class ProxyServer {
 		int n = random.nextInt();
 		int index = Math.abs(n % size);
 		server = serverList.get(index);
+		System.err.println(server.ip + ":" + server.port);
 		return server;
 	}
 
