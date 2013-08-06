@@ -11,9 +11,11 @@ import java.util.Random;
  */
 public class ProxyServer {
 
+	// 代理服务器列表
 	public static ArrayList<Server> serverList = new ArrayList<Server>();
 
 	static {
+		// 初始化
 		serverList.add(new Server("110.4.24.170", 80));
 		serverList.add(new Server("110.4.24.170", 81));
 		serverList.add(new Server("110.4.24.170", 82));
@@ -32,7 +34,7 @@ public class ProxyServer {
 	}
 
 	/**
-	 * 从列表中随机取出一个代理服务器
+	 * 从列表中随机取出有效的一个代理服务器
 	 * 
 	 * @return
 	 */

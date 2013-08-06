@@ -21,7 +21,7 @@ import org.apache.http.params.HttpProtocolParams;
 public class HttpUtils {
 
 	/**
-	 * 产生HttpClient对象
+	 * 获取HttpClient对象
 	 * 
 	 * @return
 	 */
@@ -66,13 +66,17 @@ public class HttpUtils {
 		}
 	}
 
+	/**
+	 * 获得代理服务器信息
+	 * 
+	 * @param httpClient
+	 * @return
+	 */
 	public static Server getProxy(HttpClient httpClient) {
 		HttpHost proxy = (HttpHost) httpClient.getParams().getParameter(
 				ConnRoutePNames.DEFAULT_PROXY);
-
 		Server server = new Server(proxy.getHostName(), proxy.getPort());
 		return server;
-
 	}
 
 	public static void main(String[] args) {

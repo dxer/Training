@@ -28,6 +28,11 @@ public class WorkQueue {
 	// 未访问队列
 	private Queue<String> unVisited = new PriorityQueue<String>();
 
+	/**
+	 * 启动的进程数目
+	 * 
+	 * @param threadNum
+	 */
 	public WorkQueue(int threadNum) {
 		Running = true;
 		workers = new Worker[threadNum];
@@ -49,6 +54,11 @@ public class WorkQueue {
 		Running = false;
 	}
 
+	/**
+	 * 添加任务
+	 * 
+	 * @param url
+	 */
 	public void addTask(String url) {
 		synchronized (unVisited) {
 			if (url != null && !url.trim().equals("") && !visited.contains(url)
@@ -58,6 +68,11 @@ public class WorkQueue {
 		}
 	}
 
+	/**
+	 * 重新添加任务
+	 * 
+	 * @param url
+	 */
 	public void reAddTask(String url) {
 		addTask(url);
 	}
@@ -89,26 +104,34 @@ public class WorkQueue {
 						} catch (InterruptedException e) {
 						}
 					}
-
+					// 退出
 					if (!Running) {
 						return;
 					}
-
+					// 取出一个未处理的url进行处理
 					String url = unVisited.poll();
 					httpGet = new HttpGet(url);
 				}
 				// process the task
 				process(httpClient, httpGet);
 			}
+			// 关闭连接
 			httpClient.getConnectionManager().shutdown();
 		}
 
+		/**
+		 * 进行处理
+		 * 
+		 * @param httpClient
+		 * @param httpGet
+		 */
 		private void process(HttpClient httpClient, HttpGet httpGet) {
 			HttpResponse response = null;
 			String url = httpGet.getURI().toString();
 			try {
 				response = httpClient.execute(httpGet, httpContext);
 			} catch (Exception e) {
+				// 出现异常，需要重新进行处理
 				synchronized (unVisited) {
 					// 访问失败,得将url重新加入到未访问列表中
 					reAddTask(url);
@@ -133,6 +156,7 @@ public class WorkQueue {
 			} finally {
 				httpGet.releaseConnection();
 			}
+			// 处理成功的将url添加到已访问的url列表中
 			visited.add(url);
 		}
 	}
