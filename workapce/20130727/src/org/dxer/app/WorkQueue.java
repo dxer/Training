@@ -3,31 +3,23 @@ package org.dxer.app;
 import java.util.LinkedList;
 
 /**
+ * 工作队列
  * 
  * @author user
  * 
  */
 public class WorkQueue {
 
-	private boolean Running;
 	private final Worker[] workers;
 	private final LinkedList<Object> queue;
-	private final int threadNum;
 
 	public WorkQueue(int threadNum) {
-		Running = true;
-		this.threadNum = threadNum;
 		queue = new LinkedList<Object>();
 		workers = new Worker[threadNum];
 		for (int i = 0; i < threadNum; i++) {
 			workers[i] = new Worker();
+			workers[i].setName("Thread - " + i);
 			workers[i].start();
-		}
-	}
-
-	public void getState() {
-		for (int i = 0; i < threadNum; i++) {
-			System.out.println(workers[i].getState().name());
 		}
 	}
 
@@ -38,32 +30,23 @@ public class WorkQueue {
 		}
 	}
 
-	public void stop() {
-		Running = false;
-		synchronized (queue) {
-			queue.notifyAll();
-		}
-	}
-
 	private class Worker extends Thread {
 
 		@Override
 		public void run() {
 			Runnable r = null;
-			while (Running) {
+			while (true) {
 				synchronized (queue) {
 					while (queue.isEmpty()) {
 						try {
 							queue.wait();
 						} catch (InterruptedException e) {
-							// ignored
 						}
 					}
 					r = (Runnable) queue.removeFirst();
 				}
 				try {
 					r.run();
-					Thread.sleep(1000 * 15);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

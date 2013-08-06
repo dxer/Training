@@ -1,6 +1,5 @@
 package org.dxer.app;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -12,7 +11,7 @@ import org.jsoup.select.Elements;
 public class HtmlUtils {
 
 	private static Document getDocument(String pageContent) {
-		File input = new File(pageContent);
+	//	File input = new File(pageContent);
 		Document doc = null;
 		try {
 			// doc = Jsoup.parse(input, "UTF-8");
@@ -48,7 +47,7 @@ public class HtmlUtils {
 			houseInfo.setContacts(getContact(doc));
 			houseInfo.setDescription(getDesc(doc));
 		} catch (Exception e) {
-			System.err.println("------------------------");
+			e.printStackTrace();
 		}
 		return houseInfo;
 	}

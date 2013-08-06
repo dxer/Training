@@ -1,4 +1,5 @@
 package org.dxer.app;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,7 +25,8 @@ public class IOUtils {
 			content = new StringBuffer();
 			String line = null;
 			while ((line = reader.readLine()) != null) {
-				content.append(line + "\n");
+				// content.append(line + "\n");
+				content.append(line);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
