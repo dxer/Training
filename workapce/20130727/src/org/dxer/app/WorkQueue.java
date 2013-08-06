@@ -112,6 +112,8 @@ public class WorkQueue {
 				synchronized (unVisited) {
 					// 访问失败,得将url重新加入到未访问列表中
 					reAddTask(url);
+					// 将代理服务器设置为禁用状态
+					HttpUtils.getProxy(httpClient).setState(false);
 					// 修改代理服务器
 					HttpUtils.serProxy(httpClient, ProxyServer.getServer());
 				}

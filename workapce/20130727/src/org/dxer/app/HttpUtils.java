@@ -65,4 +65,22 @@ public class HttpUtils {
 					proxy);
 		}
 	}
+
+	public static Server getProxy(HttpClient httpClient) {
+		HttpHost proxy = (HttpHost) httpClient.getParams().getParameter(
+				ConnRoutePNames.DEFAULT_PROXY);
+
+		Server server = new Server(proxy.getHostName(), proxy.getPort());
+		return server;
+
+	}
+
+	public static void main(String[] args) {
+		HttpClient client = getHttpClient();
+		Server server = ProxyServer.serverList.get(0);
+		serProxy(client, server);
+
+		System.out.println(getProxy(client).ip);
+
+	}
 }
