@@ -52,8 +52,8 @@ public class Clinet {
 			while (true) {
 				System.out.print("> ");
 				String msg = reader.readLine().trim();
-				String fileName = get(msg, 1);
-				String srcFileName = get(msg, 2);
+				String fileName = get(msg, 2);
+				String srcFileName = get(msg, 1);
 				writer.println(msg);
 				writer.flush();
 				if (msg.equals("bye")) {
